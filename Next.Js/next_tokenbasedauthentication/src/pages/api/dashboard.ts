@@ -12,7 +12,7 @@ const verifyToken = (req: NextApiRequest, res: NextApiResponse, next: () => void
 
   try {
     // Verify JWT token
-    const decoded = jwt.verify(token, 'your_secret_key');
+    const decoded = jwt.verify(token, 'c@^vT5nK#8BqF$p6X&!z@Uj2*Gc3$@%');
 
     // Attach user data to request object
     req.body = decoded;
