@@ -1,0 +1,59 @@
+@page "/websocket"
+@inject IJSRuntime JSRuntime
+
+<h1>WebSocket Example</h1>
+
+<div>
+    <h2>Received Messages:</h2>
+    <h1>@Rmessage</h1>
+</div>
+
+
+@code {
+    private DotNetObjectReference<WebSocketPage> _dotNetReference;
+    private string _socketId;
+    private string Rmessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _dotNetReference = DotNetObjectReference.Create(this);
+
+        _socketId = await JSRuntime.InvokeAsync<string>("connectWebSocket",
+            "ws://fangage-integration.sorama.eu/SoundSurface/Websocket",
+            _dotNetReference,
+            nameof(OnOpen),
+            nameof(OnMessage),
+            nameof(OnError),
+            nameof(OnClose));
+    }
+
+    [JSInvokable]
+    public void OnOpen()
+    {
+        Console.WriteLine("WebSocket connected!");
+    }
+
+    [JSInvokable]
+public void OnMessage(string message)
+{
+    Console.WriteLine($"Received message: {message}");
+
+    // Update the received message
+    Rmessage = message;
+
+    // Trigger UI update
+    StateHasChanged();
+}
+
+    [JSInvokable]
+    public void OnError(string errorMessage)
+    {
+        Console.WriteLine($"WebSocket error: {errorMessage}");
+    }
+
+    [JSInvokable]
+    public void OnClose()
+    {
+        Console.WriteLine("WebSocket closed!");
+    }
+}

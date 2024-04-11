@@ -7,7 +7,10 @@ export let options = {
 };
 
 export default function () {
-  const url = 'http://127.0.0.1:8000'; // Update with your actual URL
+  const url = 'http://localhost:5100/websocket'; // Update with your actual URL
+
+  // Wait for 2 seconds before making the request
+  sleep(2);
 
   const response = http.get(url);
   check(response, {
