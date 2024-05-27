@@ -1,0 +1,92 @@
+﻿@page "/"
+@using MudBlazor
+@implements IDisposable
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudTimeline>
+        @foreach (var eventItem in eventItems)
+        {
+            <MudTimelineItem Color="@GetEventColor(eventItem)" Size="Size.Small">
+                <ItemOpposite>
+                    <MudText Color="@GetEventColor(eventItem)" Typo="Typo.h5">@eventItem.Time.ToString("HH:mm:ss")</MudText>
+                </ItemOpposite>
+                <ItemContent>
+                    <MudText Color="@GetEventColor(eventItem)" Typo="Typo.h6" GutterBottom="true">@eventItem.Title</MudText>
+                    <MudText>@eventItem.Description</MudText>
+                    @if (currentTime >= eventItem.Time)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" />
+                    }
+                </ItemContent>
+            </MudTimelineItem>
+        }
+    </MudTimeline>
+    <MudText Typo="Typo.h4">Current Time: @currentTime.ToString("HH:mm:ss")</MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ToggleTimer">
+        @if (isRunning)
+        {
+            <MudIcon Icon="@Icons.Material.Filled.Pause" />
+            <h2>Pause</h2>
+        }
+        else
+        {
+            <MudIcon Icon="@Icons.Material.Filled.PlayArrow" />
+            <p>Play</p>
+        }
+    </MudButton>
+</MudContainer>
+
+@code {
+    private System.Timers.Timer timer;
+    private DateTime currentTime = new DateTime(1970, 1, 1, 0, 0, 0);
+    private List<EventItem> eventItems;
+    private bool isRunning = true;
+
+    protected override void OnInitialized()
+    {
+        eventItems = new List<EventItem>
+{
+new EventItem { Time = new DateTime(1970, 1, 1, 0, 0, 10), Title = "Goal", Description = "Luuk de Jong" },
+new EventItem { Time = new DateTime(1970, 1, 1, 0, 0, 25), Title = "Yellow Card", Description = "Steven Bergwijn" },
+new EventItem { Time = new DateTime(1970, 1, 1, 0, 0, 40), Title = "Goal", Description = "Malik Tillman" }
+};
+
+        timer = new System.Timers.Timer(1000); // 1 second interval
+        timer.Elapsed += OnTimerElapsed;
+        timer.Start();
+    }
+
+    private void OnTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        if (isRunning)
+        {
+            InvokeAsync(() =>
+            {
+                currentTime = currentTime.AddSeconds(1);
+                StateHasChanged();
+            });
+        }
+    }
+
+    private void ToggleTimer()
+    {
+        isRunning = !isRunning;
+    }
+
+    private MudBlazor.Color GetEventColor(EventItem eventItem)
+    {
+        return currentTime >= eventItem.Time ? MudBlazor.Color.Success : MudBlazor.Color.Default;
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+
+    public class EventItem
+    {
+        public DateTime Time { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+    }
+}
